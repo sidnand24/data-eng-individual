@@ -1,8 +1,25 @@
+import os
+import sys
+import pyspark
+import findspark
+findspark.init()
+
+os.environ['PYSPARK_PYTHON'] = sys.executable
+os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
-from random import randint
+import random
+
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import regexp_replace
+from pyspark.sql.functions import col, when
+
+spark = SparkSession.builder.appName("PySpark Web Scrape").getOrCreate()
+spark
 
 
 headers = {
@@ -68,3 +85,37 @@ def get_player_data():
 
 
 player_data = get_player_data()
+
+
+# Join dataframes for each team roster
+full_teams = pd.concat(player_data.values(), ignore_index=True)
+full_teams
+
+# Convert into Spark DataFrame
+df_rosters = spark.createDataFrame(full_teams)
+
+
+# Clean jersey number from player names
+df_rosters = df_rosters.withColumn("Name", regexp_replace('Name', "[0-9]", ""))
+
+# Clean height column to convert to inches
+df_rosters = df_rosters.withColumn("HT", regexp_replace('HT', '[\s\'"]', ""))
+df_rosters = df_rosters.withColumn("HT", df_rosters.HT.substr(1,1) * 12 + df_rosters.HT.substr(2,2)) 
+
+# Clean weight column to remove lbs
+df_rosters = df_rosters.withColumn("WT", regexp_replace('WT', "[^0-9]", ""))
+
+# Remove hypens from missing values in College
+df_rosters = df_rosters.withColumn("College", regexp_replace('College', "[^a-zA-Z]", ""))
+
+# Clean salary to only include number
+df_rosters = df_rosters.withColumn("Salary", regexp_replace('Salary', "[^0-9]", ""))
+
+
+# Drop empty first column
+df_rosters = df_rosters.drop('')
+
+df_rosters = df_rosters.select([when(col(c)== "", None).otherwise(col(c)).alias(c) for c in df_rosters.columns])
+
+
+df_rosters.write.parquet('df_rosters')
