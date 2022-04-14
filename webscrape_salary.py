@@ -4,6 +4,9 @@ import pyspark
 import findspark
 findspark.init()
 
+from pyspark.sql.functions import regexp_replace
+from pyspark.sql.functions import col, when
+
 os.environ['PYSPARK_PYTHON'] = sys.executable
 os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
 
@@ -13,20 +16,35 @@ import pandas as pd
 import time
 import random
 
+# import module for access keys
+import config
 
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import regexp_replace
-from pyspark.sql.functions import col, when
+number_cores = int(os.environ['NUM_CPUS'])
+memory_gb = int(os.environ['AVAILABLE_MEMORY_MB']) // 1024
 
-spark = SparkSession.builder.appName("PySpark Web Scrape").getOrCreate()
-spark
+conf = (
+    pyspark.SparkConf()
+        .setMaster('local[{}]'.format(number_cores))
+        .set('spark.jars.packages', 'org.apache.hadoop:hadoop-aws:3.3.1')
+        .set('spark.driver.memory', '{}g'.format(memory_gb))
+)
+
+sc = pyspark.SparkContext(conf=conf)
+
+sc._jsc.hadoopConfiguration().set('fs.s3a.aws.credentials.provider', 'org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider')
+sc._jsc.hadoopConfiguration().set('fs.s3a.access.key', config.AWS_ACCESS_KEY)
+sc._jsc.hadoopConfiguration().set('fs.s3a.secret.key', config.AWS_SECRET_ACCESS_KEY)
+
+spark=pyspark.sql.SparkSession(sc)
 
 
+
+# Include header to identify yourself to website when scraping
 headers = {
-     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36',
- }
-
-
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36',
+    }
+    
+    
 # function to get url link for each team's roster
 def find_team_url():
     url = "http://www.espn.com/nba/teams"
@@ -48,9 +66,10 @@ def find_team_url():
         team_name = link.rsplit('/', 1)[-1]
         team_rosters[team_name] = 'http://www.espn.com' + link
     return team_rosters
-
-
+    
+    
 rosters = find_team_url()
+
 
 
 def get_player_data():
@@ -82,17 +101,19 @@ def get_player_data():
         d[k]['team'] = k # Add team name for the players
         time.sleep(random.randint(2,5)) # Space out each request so server isn't overwhelmed
     return d
-
-
+    
+    
+    
 player_data = get_player_data()
 
 
 # Join dataframes for each team roster
 full_teams = pd.concat(player_data.values(), ignore_index=True)
 full_teams
-
+    
 # Convert into Spark DataFrame
 df_rosters = spark.createDataFrame(full_teams)
+
 
 
 # Clean jersey number from player names
@@ -111,11 +132,14 @@ df_rosters = df_rosters.withColumn("College", regexp_replace('College', "[^a-zA-
 # Clean salary to only include number
 df_rosters = df_rosters.withColumn("Salary", regexp_replace('Salary', "[^0-9]", ""))
 
-
 # Drop empty first column
 df_rosters = df_rosters.drop('')
 
+# Fill empty strings with missing values
 df_rosters = df_rosters.select([when(col(c)== "", None).otherwise(col(c)).alias(c) for c in df_rosters.columns])
 
 
-df_rosters.write.parquet('df_rosters')
+# Upload pyspark DataFrame as Parquet format into S3 Bucket
+df_rosters.write.parquet("s3a://msin0166nbadata/df_rosters/")
+    
+    
