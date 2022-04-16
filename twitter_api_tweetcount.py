@@ -36,7 +36,7 @@ spark=pyspark.sql.SparkSession(sc)
 
 
 # Read roster file to get player names
-df_rosters = spark.read.parquet("s3a://msin0166nbadata/df_rosters/")
+df_rosters = spark.read.parquet("s3a://msin0166nbadata/raw_collected/df_rosters/")
 
 
 # Random sample of 100 players
@@ -105,4 +105,4 @@ all_tweets = all_tweets.withColumn("Tweet_count", all_tweets["Tweet_count"].cast
 
 
 # Upload pyspark DataFrame as Parquet format into S3 Bucket
-all_tweets.write.parquet("s3a://msin0166nbadata/df_tweets/")
+all_tweets.write.parquet("s3a://msin0166nbadata/raw_collected/df_tweets/")
