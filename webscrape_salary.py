@@ -140,6 +140,6 @@ df_rosters = df_rosters.select([when(col(c)== "", None).otherwise(col(c)).alias(
 
 
 # Upload pyspark DataFrame as Parquet format into S3 Bucket
-df_rosters.write.parquet("s3a://msin0166nbadata/df_rosters/")
-    
+df_rosters.write.parquet("s3a://msin0166nbadata/raw_collected/df_rosters/")
+
     
