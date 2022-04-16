@@ -38,10 +38,12 @@ spark=pyspark.sql.SparkSession(sc)
 headers = {
         'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36',
     }
-    
+
+# season to scrape
+season = "2022"
 
 # Use BeautifulSoup to scrape website
-url = "https://www.basketball-reference.com/leagues/NBA_2022_totals.html"
+url = "https://www.basketball-reference.com/leagues/NBA_"+season+"_totals.html"
 r = requests.get(url, headers=headers)
 text = r.text
 soup = BeautifulSoup(text)
