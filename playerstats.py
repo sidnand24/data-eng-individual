@@ -72,4 +72,4 @@ df_stats = spark.createDataFrame(df)
 df_stats = df_stats.select([when(col(c)== "", None).otherwise(col(c)).alias(c) for c in df_stats.columns])
 
 # Upload pyspark DataFrame as Parquet format into S3 Bucket
-df_stats.write.parquet("s3a://msin0166nbadata/df_stats/")
+df_stats.write.parquet("s3a://msin0166nbadata/raw_collected/df_stats/")
