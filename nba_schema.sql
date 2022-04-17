@@ -13,7 +13,6 @@ create table nba.teams (
 );
 
 
-
 drop table if exists nba.players cascade;
 create table nba.players (
     player_id       int primary key,
@@ -27,7 +26,6 @@ create table nba.players (
     college         varchar(128),
     salary          int
 );
-
 
 
 drop table if exists nba.stats cascade;
