@@ -4,13 +4,9 @@ import pyspark
 import findspark
 findspark.init()
 
-from pyspark.sql.functions import regexp_replace
-from pyspark.sql.functions import col, when
-
 os.environ['PYSPARK_PYTHON'] = sys.executable
 os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
 
-import requests
 import pandas as pd
 from nba_api.stats.static import teams
 
