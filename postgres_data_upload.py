@@ -3,8 +3,6 @@ import sys
 import pyspark
 import findspark
 findspark.init()
-from pyspark.sql import functions as F 
-from pyspark.sql.types import IntegerType
 
 os.environ['PYSPARK_PYTHON'] = sys.executable
 os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
