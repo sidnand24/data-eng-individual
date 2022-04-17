@@ -98,6 +98,13 @@ for x in intcols:
 for y in realcols:
     df_stats = df_stats.withColumn(y, df_stats[y].cast(FloatType()))
     
+# Replace numbers in column names
+for name in df_stats.schema.names:
+    df_stats = df_stats.withColumnRenamed(name, name.replace('3', 'THREE_'))
+
+for name in df_stats.schema.names:
+    df_stats = df_stats.withColumnRenamed(name, name.replace('2', 'TWO_'))
+    
 # ----------------------------
 # tweets table
 # ----------------------------
