@@ -84,10 +84,10 @@ def regression_model(mllib_model, train_df, test_df):
 st.markdown('The target variable of focus is player salary and vectorized data is given as input to the model.')
 st.write("#")
 
-st.markdown("""The input variables selected were a mixture of general player information (e.g. age and height), a proxy measure of popularity (total tweet
-count over the previous week), and performance statistics of the season thus far. As numerous factors influence the salary offered to players by their 
-respective clubs, the model is unlikely to truly accurately determine the correct value. Nevertheless the best performing model can offer insight into potential earning
-and a rough estimate to be utilised by the board of the team and players themselves.""")
+st.markdown("""The input variables selected were a mixture of general player information (e.g. age, height), a proxy measure of popularity (total tweet
+count over the previous week), and performance statistics of the season thus far. As numerous factors can influence the salary offered to players by their 
+respective teams, the model is unlikely to truly accurately determine the correct value. Nevertheless the best performing model can offer an estimate which
+can valuable for the board or players themselves.""")
 
 st.write("#")
 st.text('The results and scores of the model on the testing data are displayed below.')
