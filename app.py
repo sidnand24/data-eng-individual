@@ -84,18 +84,18 @@ def regression_model(mllib_model, train_df, test_df):
 st.markdown('The target variable of focus is player salary and vectorized data is given as input to the model.')
 st.write("#")
 
-st.text("""The input variables selected were a mixture of general player information (e.g. age and height), a proxy measure of popularity (total tweet
+st.markdown("""The input variables selected were a mixture of general player information (e.g. age and height), a proxy measure of popularity (total tweet
 count over the previous week), and performance statistics of the season thus far. As numerous factors influence the salary offered to players by their 
 respective clubs, the model is unlikely to truly accurately determine the correct value. Nevertheless the best performing model can offer insight into potential earning
 and a rough estimate to be utilised by the board of the team and players themselves.""")
 
 st.write("#")
-st.text('The results and scores of the model on the testing data is displayed below.')
+st.text('The results and scores of the model on the testing data are displayed below.')
 r2,rmse,actual,pred = regression_model(mllib_model, train_df, test_df)
 
 st.write(mllib_model," model")
 
-st.write(r2," score")
-st.write(rmse," of the model")
+st.write(r2," R2 score")
+st.write(rmse," RMSE of the model")
 
-st.markdown('From the results of this project the random forest regressor outperforms the other models')
+st.markdown('From the results of this project the random forest regressor is the best performing model.')
